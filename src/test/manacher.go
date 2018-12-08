@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 func manacher(s string) string {
 	tmp := make([]rune, 0)
 
@@ -109,6 +105,6 @@ func min(x, y int) int {
 	return y
 }
 
-func main() {
-	fmt.Println(manacher("babad"))
-}
+// func main() {
+// 	fmt.Println(manacher("babad"))
+// }
