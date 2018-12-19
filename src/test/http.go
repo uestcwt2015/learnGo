@@ -1,32 +1,37 @@
 package main
 
 import (
-    "fmt"
-    "net/http"
+	"fmt"
+	"net/http"
 )
 
 type HelloHandler struct{}
 
-func (h *HelloHandler) ServeHTTP (w http.ResponseWriter, req *http.Request) {
-    fmt.Fprintf(w, "Hello")
+func (h *HelloHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "hello!")
 }
 
-type WorldHandler struct{}
+func log(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Handler called - %T\n", h)
+		h.ServeHTTP(w, r)
+	})
+}
 
-func (h *WorldHandler) ServeHTTP (w http.ResponseWriter, req *http.Request) {
-    fmt.Fprintf(w, "World")
+func protect(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("protected")
+		h.ServeHTTP(w, r)
+	})
 }
 
 func main() {
-    hello := HelloHandler{}
-    world := WorldHandler{}
+	server := http.Server{
+		Addr: "127.0.0.1:8080",
+	}
 
-    server := http.Server{
-        Addr: "127.0.0.1:8080",
-    }
+	hello := &HelloHandler{}
+	http.Handle("/hello", protect(log(hello)))
 
-    http.Handle("/hello", &hello)
-    http.Handle("/world", &world)
-
-    server.ListenAndServe()
+	server.ListenAndServe()
 }
